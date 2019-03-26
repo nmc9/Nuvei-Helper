@@ -1,5 +1,9 @@
 <?php
-class Pivotal_Format{
+namespace Functions\Post;
+
+use \Nuvei\Nuvei;
+
+class Nuvei_Format{
 	protected $_paymentParams;
 	protected $_paymentResponse;
 	protected $_normalizedPaymentReponse;
@@ -9,17 +13,23 @@ class Pivotal_Format{
 	protected $_postedHash;
 	protected $_postDateTime;
 	protected $_xml;
-	protected $Pivotal_Config;
+	// protected $Nuvei_Config;
 
-	public function __construct($paymentParams,$Pivotal_Config,$postHash,$postDateTime){
+	protected $paymenttype;
+
+	public function __construct($Nuvei_Config,$paymentParams,$terminal,$postHash,$postDateTime){
+		$this->Nuvei_Config = $Nuvei_Config;
 		$this->_paymentParams = $paymentParams;
 		$this->_postHash = $postHash;
-		$this->Pivotal_Config = $Pivotal_Config;
-		$this->_terminal = $this->Pivotal_Config->readCurrencyTerminal($this->_paymentParams['CURRENCY']);
+		$this->_terminal = $terminal;
 		$this->_postDateTime = $postDateTime;
-		$this->preparePaymentParameter();
+		$this->paymenttype = $paymentParams["PAYMENTTYPE"];
+		if($this->paymenttype == "check" || $this->paymenttype == "ach"){
+			$this->prepareAchPaymentParameter();
+		}else{
+			$this->prepareCardPaymentParameter();
+		}
 		$this->preparePaymentXML();
-		
 
 	}
 
@@ -79,31 +89,42 @@ class Pivotal_Format{
 
 	public function normalizePaymentReponse(){
 		$this->_normalizedPaymentReponse = $this->XMLToArray($this->_paymentResponse);
+		if(isset($this->_normalizedPaymentReponse["DATETIME"])  && $this->_normalizedPaymentReponse["DATETIME"] === array()){
+			$this->_normalizedPaymentReponse["DATETIME"] = date('Y-m-d\TH:i:s');
+		}
 		return $this->_normalizedPaymentReponse;
 	}
 
 	private function preparePaymentXML(){
-		$xmlStructure = $this->Pivotal_Config->readFields();
-		
+		$xmlStructure = $this->Nuvei_Config->readFields($this->paymenttype);
+
 		$out = '<?xml version="'.$xmlStructure['XMLHeader']['version'].'" encoding="'.$xmlStructure['XMLHeader']['encoding'].'"?>';
-		
+
 		$out .= '<'.$xmlStructure['XMLEnclosureTag'].'>';
-		
+
 		$params = $this->_normalizedPaymentParams;
 
-		foreach($params as $key=>$param):
-			$tag = strtoupper($key);
-			$out .= '<'.$tag.'>'.$param.'</'.$tag.'>';
-		endforeach;
+		foreach($params as $key=>$param){
+			if($key == "CUSTOM"){
+				foreach ($param as $custom_key => $custom_param) {
+					$tag = strtoupper($custom_key);
+					$out .= '<CUSTOMFIELD NAME="'.$tag.'">'.$custom_param.'</CUSTOMFIELD>';
+				}
+			}else{
+				$tag = strtoupper($key);
+				$out .= '<'.$tag.'>'.$param.'</'.$tag.'>';
+			}
+		}
 		$out .= '</'.$xmlStructure['XMLEnclosureTag'].'>';
+
 		$this->_xml = $out;
 		return $out;
 	}
 
 	private function cleanExpiryDate($month = '',$year = ''){
-		if(strlen($year)>2):
+		if(strlen($year)>2){
 			$year = substr($year, 2,2);
-		endif;
+		}
 
 		$date = $month.$year;
 
@@ -118,47 +139,123 @@ class Pivotal_Format{
 	}
 
 	public function getCardType($cardNumber){
-		$rcardtype = $this->Pivotal_Config->getCardType($cardNumber);
+		$rcardtype = $this->Nuvei_Config->getCardType($cardNumber);
 		return strtoupper($rcardtype);
 	}
 
-	private function preparePaymentParameter(){
+	private function prepareCardPaymentParameter(){
 		$params = $this->_paymentParams;
-		$this->_terminal = $this->Pivotal_Config->readCurrencyTerminal($params['CURRENCY']);
+		$this->_terminal = $this->_terminal;
 		$out = array();
 
 		$out['ORDERID'] = $params['ORDERID'];
 		$out['TERMINALID'] = $this->_terminal['TerminalID'];
 		$out['AMOUNT'] = $params['AMOUNT'];
+
 		$out['DATETIME'] = $this->_postDateTime;
 		$out['CARDNUMBER'] = $this->cleanCardNumber($params['CARDNUMBER']);
 		$out['CARDTYPE'] = $this->getCardType($params['CARDNUMBER']);
 		$out['CARDEXPIRY'] = $this->cleanExpiryDate($params['MONTH'],$params['YEAR']);
 		$out['CARDHOLDERNAME'] = $params['CARDHOLDERNAME'];
+
 		$out['HASH'] = $this->_postHash;
 		$out['CURRENCY'] = $params['CURRENCY'];
 		$out['TERMINALTYPE'] = 2;
 		$out['TRANSACTIONTYPE'] = 7;
 		$out['CVV'] = $params['CVV'];
 
+		$this->prepareAddress($out,$params);
+		$customs = $this->getCustoms($params);
+		if($customs){
+			$out['CUSTOM'] = $customs;
+		}
 		$this->_normalizedPaymentParams = $out;
-
 		return $out;
 	}
 
-	public function XMLToArray($xml,$main_heading = '') {
+	public function prepareAddress(&$output,$params){
+		if(isset($params['ADDRESS'])){
+			$addressObject = $params['ADDRESS'];
+			foreach (Nuvei::ADDRESS as $ak) {
+				if($addressObject[$ak] != null){
+					$output[$ak] = $addressObject[$ak];
+				}
+			}
+		}
+	}
 
+
+
+	private function prepareAchPaymentParameter(){
+		$params = $this->_paymentParams;
+		$this->_terminal = $this->_terminal;
+		$out = array();
+
+
+
+		$out['ORDERID'] = $params['ORDERID'];
+		$out['TERMINALID'] = $this->_terminal['TerminalID'];
+		$out['AMOUNT'] = $params['AMOUNT'];
+		$out['CURRENCY'] = $params['CURRENCY'];
+		$out['DATETIME'] = $this->_postDateTime;
+		$out['TERMINALTYPE'] = 2;
+		$out['SEC_CODE'] = "WEB";
+		$out['ACCOUNT_TYPE'] = $params['ACCOUNT_TYPE'];
+		$out['ACCOUNT_NUMBER'] = $params['ACCOUNT_NUMBER'];
+		$out['ROUTING_NUMBER'] = $params['ROUTING_NUMBER'];
+		$out['ACCOUNT_NAME'] = $params['ACCOUNT_NAME'];
+
+		if(isset($params['CHECK_NUMBER'])){
+			$out['CHECK_NUMBER'] = $params['CHECK_NUMBER'] ;
+		}
+
+		// $out['ADDRESS1'] = "7th Avenu, 77";
+		// $out['ADDRESS2'] = "5th Avenu, 13";
+		// $out['CITY'] = "NEW YORK";
+		// $out['REGION'] = "A1";
+		// $out['POSTCODE'] = "117898";
+		// $out['COUNTRY'] = "US";
+		// $out['PHONE'] = "9563343234";
+		// $out['IPADDRESS'] = "192.168.0.1";
+
+		// $out['EMAIL'] = "test@GlobalOnePay.com";
+		// $out['DESCRIPTION'] = "test";
+		if(isset($params["DL_NUMBER"])){
+			$out['DL_STATE'] = $params['DL_STATE'];
+			$out['DL_NUMBER'] = $params['DL_NUMBER'];
+		}
+
+		$out['HASH'] = $this->_postHash;
+
+		$this->_normalizedPaymentParams = $out;
+
+		return $out;
+
+	}
+
+	private function getCustoms($params){
+		$customs = [];
+		foreach ($params as $key => $value) {
+			if(substr($key, 0, 7) === "CUSTOM_"){
+				$customs[substr($key,7)] = $value;
+			}
+		}
+		return $customs;
+	}
+
+	public function XMLToArray($xml,$main_heading = '') {
 		$deXml = simplexml_load_string($xml);
 		$deJson = json_encode($deXml);
+
 		$xml_array = json_decode($deJson,TRUE);
 
-		if (! empty($main_heading)):
+		if (! empty($main_heading)){
 			$returned = $xml_array[$main_heading];
 			return $returned;
-		else:
+		}else
+		{
 			return $xml_array;
-		endif;
-
+		}
 	}
 
 }

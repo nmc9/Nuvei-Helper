@@ -1,30 +1,32 @@
 <?php
-	class Pivotal_Form{
-		var $ds = DIRECTORY_SEPARATOR;
-		
-		var $_classNames = array(
+namespace Helper;
+
+	class Nuvei_Form{
+		public $ds = DIRECTORY_SEPARATOR;
+
+		public $_classNames = array(
 			'container' => 'payment-container',
 			'wrapper' => 'card-wrapper',
 			'formContainer' => 'form-container active',
 			'button' => 'expand radius',
 			);
 
-		var $_inputNames = array(
+		public $_inputNames = array(
 			'numberInput' => 'CARDNUMBER',
 			'expiryInput' => 'EXPIRY',
 			'cvcInput' => 'CVV',
 			'nameInput' => 'CARDHOLDERNAME'
 			);
-		
-		var $_formAction = '';
-		
-		var $_formId = 'myPaymentForm';
-		
-		var $_buttonText = 'Submit';
+
+		public $_formAction = '';
+
+		public $_formId = 'myPaymentForm';
+
+		public $_buttonText = 'Submit';
 
 		public function __construct($formAction = '', $formId = 'myPaymentForm'){
 			$this->_formAction = $formAction;
-			$this->_formId = $formId;			
+			$this->_formId = $formId;
 		}
 
 		public function buildForm(){
@@ -79,7 +81,7 @@
 		public function setButtonText($text = 'Submit'){
 			$this->_buttonText = $text;
 		}
-		
+
 		public function container(){
 			$out = '';
 			$out .= '<div class="'.$this->_classNames['container'].'">';
@@ -103,7 +105,7 @@
 			$out .= '</div>';
 			return $out;
 		}
-		
+
 		public function form(){
 			$out = '';
 			$out .= '<form id="'.$this->_formId.'" action="'.$this->_formAction.'" method="POST">';

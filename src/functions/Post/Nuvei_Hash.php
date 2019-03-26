@@ -1,5 +1,7 @@
 <?php
-Class Pivotal_Hash{
+namespace Functions\Post;
+
+class Nuvei_Hash{
 
 	var $_secret;
 	var $_terminal;
@@ -10,6 +12,7 @@ Class Pivotal_Hash{
 
 	public function __construct($paymentParams,$terminal,$postDateTime){
 		$this->_paymentParams = $paymentParams;
+
 
 		$this->_secret = $terminal['SharedSECRET'];
 		$this->_terminal = $terminal['TerminalID'];
@@ -49,7 +52,7 @@ Class Pivotal_Hash{
 	}
 
 	public function createHash(){
-		
+
 		$params = $this->_paymentParams;
 
 		$stringToHash = '';
@@ -64,17 +67,16 @@ Class Pivotal_Hash{
 
 	public function buildResponseHash(){
 
-		$reponse = $this->_normalizedPaymentReponse;
+		$response = $this->_normalizedPaymentReponse;
 
 		$payment = $this->_paymentParams;
-
 		$stringToHash = '';
 		$stringToHash .= $this->_terminal;
-		$stringToHash .= $reponse['UNIQUEREF'];
+		$stringToHash .= $response['UNIQUEREF'];
 		$stringToHash .= $payment['AMOUNT'];
-		$stringToHash .= $reponse['DATETIME'];
-		$stringToHash .= $reponse['RESPONSECODE'];
-		$stringToHash .= $reponse['RESPONSETEXT'];
+		$stringToHash .= $response['DATETIME'];
+		$stringToHash .= $response['RESPONSECODE'];
+		$stringToHash .= $response['RESPONSETEXT'];
 
 		$stringToHash .= $this->_secret;
 

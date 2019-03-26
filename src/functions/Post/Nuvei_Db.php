@@ -1,5 +1,7 @@
 <?php
-Class Pivotal_Db{
+namespace Functions\Post;
+
+class Nuvei_Db{
 
 	var $_dbConfig = array(
 		'host' => 'localhost',
@@ -78,17 +80,17 @@ Class Pivotal_Db{
 	}
 
 	private function openConnection(){
-		$db = mysql_connect($this->_dbConfig['host'], $this->_dbConfig['login'], $this->_dbConfig['password']);		
+		$db = mysql_connect($this->_dbConfig['host'], $this->_dbConfig['login'], $this->_dbConfig['password']);
 		mysql_select_db($this->_dbConfig['database'],$db);
 	}
-	
+
 	private function executeQuery($sql = ''){
 		$req = mysql_query($sql) or die('SQL Error!<br>'.$sql.'<br>'.mysql_error());
-		return $req;	
+		return $req;
 	}
 
 	private function closeConnection(){
-		mysql_close(); 
+		mysql_close();
 	}
 
 	public function insertTxnIntoDB($txnArrayToSave = array()){
@@ -114,9 +116,9 @@ Class Pivotal_Db{
 		//removing first commas and space
 		$fieldsToSave = "(".substr($fieldsToSave, 2).")";
 		$dataToSave = " VALUES (".substr($dataToSave, 2).")";
-		
+
 		$sql = $sqlPrefix.$fieldsToSave.$dataToSave.$sqlSuffix;
-		
+
 		$this->executeQuery($sql);
 
 		$this->_txnId=mysql_fetch_row($this->executeQuery('SELECT LAST_INSERT_ID();'))[0];
@@ -129,12 +131,12 @@ Class Pivotal_Db{
 
 		$table = $this->_orderConfig['table'];
 		$fieldMapping = $this->_orderConfig['fieldMapping'];
-		
+
 		$sqlPrefix = "UPDATE $table SET ";
 		$sqlSuffix = " WHERE ".$fieldMapping['ORDERID']."=".$txnArrayToSave['ORDERID'].";";
-		
+
 		$sqlUpdate = $fieldMapping['TXNID'].' = '.$this->_txnId;
-		
+
 		foreach($txnArrayToSave as $fielToMap => $valueToSave):
 			if(isset($fieldMapping[$fielToMap]) && $fielToMap!='ORDERID'):
 				if(is_bool($valueToSave)):
@@ -143,13 +145,13 @@ Class Pivotal_Db{
 				$sqlUpdate .= ', '.$fieldMapping[$fielToMap]."='".$valueToSave."'";
 			endif;
 		endforeach;
-		
+
 		$sql = $sqlPrefix.$sqlUpdate.$sqlSuffix;
 
 		if(!$txnArrayToSave['STATUS']):
 			$this->executeQuery($sql);
 		endif;
-			
+
 		$this->closeConnection();
 	}
 

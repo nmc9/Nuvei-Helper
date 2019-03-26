@@ -1,54 +1,63 @@
 <?php
-class Pivotal_Config{
+namespace Functions\Post;
 
- 	var $mode = 'test';
+class Nuvei_Config{
+
+	public $mode = 'test';
+	private $config_dir = "/../../data/";
+	private $terminal = [
+		'TerminalID' => '',
+		'SharedSECRET' => '',
+		'currency', 'USD'
+	];
 
 
-	public function __construct($mode){
+	public function __construct($terminal,$mode){
 		//parent::__construct($mode);
+		$this->terminal = $terminal;
 		$this->mode = $mode;
 	}
 
 	public function readConfigData($configFile){
-		$ds = DIRECTORY_SEPARATOR;	
-		$json = file_get_contents(dirname(dirname(dirname(__FILE__))).$ds.'Data'.$ds.$configFile.'.json');
-		$data = json_decode($json,1);
+		$file = file_get_contents(__DIR__ . $this->config_dir . $configFile . ".json");
+		$data = json_decode($file,1);
 		return $data;
 	}
 
-	public function readMainConfig(){
-		$config = $this->readConfigData('MainConfig');
-		$config = $config[$this->mode];
-		return $config;
+	public function getUrl(){
+		return $this->readConfigData('Url')[$this->mode];
 	}
+
 
 	public function readTestCards(){
 		$cards = $this->readConfigData('TestCards');
 		return $cards;
 	}
 
-	public function readTerminals(){
-		$terminals = $this->readConfigData('Terminals');
-		return $terminals;
+	public function getTerminal(){
+		return $this->terminal;
 	}
 
-	public function readFields(){
-		$fields = $this->readConfigData('Fields');
-		return $fields;
+	public function readFields($paymenttype = "card"){
+		if($paymenttype == "check" || $paymenttype == "ach"){
+			return $this->readConfigData('ACHFields');
+		}else{
+			return $this->readConfigData('Fields');
+		}
 	}
 
 	public function readCurrencyTerminal($currency = 'USD'){
-		
+
 		$currency = strtolower($currency);
 
-		$terminals = $this->readTerminals();
-		
+		$terminals = $this->getTerminal();
+
 		$terminals = $terminals[$this->mode];
 
 		$rterminal = array();
 
 		$multiCurrencyTerminal = array();
-		
+
 		foreach($terminals as $terminal):
 			if(strtolower($terminal['Currency']) == $currency):
 				$rterminal = $terminal;
@@ -69,13 +78,13 @@ class Pivotal_Config{
 	}
 
 	public function readVendorTestCard($vendor = ''){
-		
+
 		$vendor = strtolower($vendor);
 
 		$cards = $this->readTestCards();
-		
+
 		$rcard = array();
-		
+
 		foreach($cards as $card):
 			if(strtolower($card['Vendor']) == $vendor):
 				$rcard = $card;
@@ -84,7 +93,7 @@ class Pivotal_Config{
 
 		return $rcard;
 	}
-	
+
 	private function cleanCardNumber($cardNumber = ''){
 		$cardNumber = str_replace('-' , '', $cardNumber);
 		$cardNumber = str_replace(' ' , '', $cardNumber);
@@ -96,14 +105,14 @@ class Pivotal_Config{
 		$cardNumber = $this->cleanCardNumber($cardNumber);
 
 		$cardsPatterns = $this->readConfigData('CardTypes');
-		
+
 		$rcardtype = 'UNKNOWN';
 
 		foreach($cardsPatterns as $cardPattern):
-			
+
 			$pattern = $cardPattern['Pattern'];
-			
-			if($pattern != 'unknown'):	
+
+			if($pattern != 'unknown'):
 				$pattern = '/'.$pattern.'/';
 				if(preg_match($pattern, $cardNumber)):
 					$rcardtype = $cardPattern['Vendor'];
@@ -112,6 +121,6 @@ class Pivotal_Config{
 
 		endforeach;
 
-		return strtoupper($rcardtype);		
+		return strtoupper($rcardtype);
 	}
 }

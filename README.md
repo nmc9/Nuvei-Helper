@@ -1,6 +1,9 @@
-PivotalPayment
+Based on this Library
+
+
+Nuvei
 ==============
-PHP Library for Pivotal Payment
+PHP Library for Nuvei
 http://www.pivotalpayments.com/ca/fr/
 
 Requirements
@@ -18,7 +21,7 @@ Installation
 Live Usage
 -----------
   	//$DIR see section installation below
-  	require_once($DIR.DIRECTORY_SEPARATOR.'Pivotal.php');	
+  	require_once($DIR.DIRECTORY_SEPARATOR.'Pivotal.php');
 
 	$paymentParams['ORDERID'] = $orderId;
 	$paymentParams['AMOUNT'] = $amount;
@@ -35,13 +38,13 @@ Live Usage
 	//'live' for live environment
 	//'test' for test environment
   	$pivotal = new Pivotal('live',$paymentParams);
-  	
+
   	//configure your db to autosave transactions
 	$pivotal->_dbConfig = array('server' => 'localhost', 'login' => 'root', 'password' => 'root', 'database' => 'myDb');
 
 	//transactions won't be saved in the DB
   	$response = $pivotal->sendPayment();
-  	
+
   	//transactions will be saved in the DB
   	//true option stands for transaction recording in the database (table is "transaction" see installation section")
 	$response = $pivotal->sendPayment(true);
@@ -51,10 +54,10 @@ Test Usage
 Test cards are included in the library:
 
   	//$DIR see section installation below
-  	require_once($DIR.DIRECTORY_SEPARATOR.'Pivotal.php');	
-	
+  	require_once($DIR.DIRECTORY_SEPARATOR.'Pivotal.php');
+
 	$pivotal_config = new Pivotal_Config('test');
-	
+
 	//get test card number for the selected vendor (Visa)
 	//get the holdername and CVV too
 	//all test variables are under the Data Directory (TestCards.json)
@@ -62,7 +65,7 @@ Test cards are included in the library:
 	//live and Test terminals are in Data Directory (Terminals.json)
 
 	$card = $pivotal_config->readVendorTestCard('visa');
-	
+
 	$paymentParams['ORDERID'] = rand(10,10000);
 	$paymentParams['AMOUNT'] = 1000;
 	$paymentParams['CURRENCY'] = 'CAD';
@@ -75,7 +78,7 @@ Test cards are included in the library:
   	$pivotal = new Pivotal('test',$paymentParams);
 
   	$response = $pivotal->sendPayment();
- 
+
 Payment validation Output
 -----------
 	//if success
@@ -90,7 +93,7 @@ Payment validation Output
 		'HASH' => 'b035f8f72f4be9df404d6268b55c02b0',
 		'STATUS' => true
 	)
-	
+
 	or
 	//if error
 	array(
@@ -105,11 +108,11 @@ Payment form helper is included in the library and is based on https://github.co
 ![card](http://i.imgur.com/qG3TenO.gif)
 
   	//$DIR see section installation below
-  	require_once($DIR.DIRECTORY_SEPARATOR.'Helper'.DIRECTORY_SEPARATOR.'form.php');	
-  	
+  	require_once($DIR.DIRECTORY_SEPARATOR.'Helper'.DIRECTORY_SEPARATOR.'form.php');
+
 	//$action = formAction see http://www.w3schools.com/tags/att_form_action.asp for more info
 	$action = 'PaymentProcessURL.php';
-	
+
 	$pivotal_form = new Pivotal_Form($action);
   	echo $pivotal_form->buildForm();
 
@@ -118,10 +121,10 @@ Extra
 This Lib also provide Regex to detect card vendor (REGEX are located in Data/CardTypes.json)
 and you can read the vendor based on the Card Number
 
- 
+
 	//$DIR see section installation below
-  	require_once($DIR.DIRECTORY_SEPARATOR.'Pivotal.php');	
-	
+  	require_once($DIR.DIRECTORY_SEPARATOR.'Pivotal.php');
+
 	$pivotal_config = new Pivotal_Config('test');
 
 	//this clean and compare the card number to regular expression config located under Data/CardTypes.json
@@ -129,7 +132,7 @@ and you can read the vendor based on the Card Number
 	//so be sure to have VISA, MASTERCARD before resellers (VISA DEBIT is part of VISA for instance which means that VISA should be before VISA DEBIT)
 
 	$vendor = $pivotal_config->getCardType('1234567890123456');
-	
+
 Credit Card Regex
 -----------
 Here are the credit card regex known so far, please feel free to contribute to make this lib even more accurate.
