@@ -1,5 +1,23 @@
+
 {
 
+	"name": "dtc/nuvei-helper",
+	"type": "library",
+	"description": "Helpers to intergate with Nuvei",
+	"keywords": ["nuvei"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Nicholas Caruso",
+			"email": "j.boggiano@seld.be",
+			"role": "Developer"
+		},
+		{
+			"name": "Jean-Louis Queguiner",
+			"email": "jean-louis.queguiner@gadz.org",
+			"role": "Developer"
+		}
+	],
 	"autoload":{
 		"classmap":[
 			"./"
