@@ -1,6 +1,4 @@
-
 {
-
 	"name": "nmc9/nuvei-helper",
 	"type": "library",
 	"description": "Helpers to intergate with Nuvei",
@@ -9,7 +7,7 @@
 	"authors": [
 		{
 			"name": "Nicholas Caruso",
-			"email": "j.boggiano@seld.be",
+			"email": "nmc9@pct.edu",
 			"role": "Developer"
 		},
 		{
@@ -26,5 +24,4 @@
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true
-
 }
