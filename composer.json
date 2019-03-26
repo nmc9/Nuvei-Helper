@@ -1,7 +1,7 @@
 
 {
 
-	"name": "dtc/nuvei-helper",
+	"name": "nmc9/nuvei-helper",
 	"type": "library",
 	"description": "Helpers to intergate with Nuvei",
 	"keywords": ["nuvei"],
