@@ -1,0 +1,69 @@
+Success Card
+
+array(8) {
+  ["UNIQUEREF"]=>
+  string(10) "D4KRZOYNJJ"
+  ["RESPONSECODE"]=>
+  string(1) "A" -> approval
+  ["RESPONSETEXT"]=>
+  string(8) "APPROVAL"
+  ["APPROVALCODE"]=>
+  string(6) "475318"
+  ["DATETIME"]=>
+  string(19) "2019-03-26T08:36:44"
+  ["AVSRESPONSE"]=>
+  string(1) "X"
+  ["CVVRESPONSE"]=>
+  string(1) "M"
+  ["HASH"]=>
+  string(32) "90834416db3e3218eb26ffc0a58e6370"
+}
+
+Success Ach
+array(6) {
+  ["UNIQUEREF"]=>
+  string(10) "FVKLLCYI20"
+  ["RESPONSECODE"]=>
+  string(1) "E"  ->approval
+  ["RESPONSETEXT"]=>
+  string(8) "ACCEPTED"
+  ["APPROVALCODE"]=>
+  string(7) "Success"
+  ["DATETIME"]=>
+  string(19) "2019-03-26T08:38:14"
+  ["HASH"]=>
+  string(32) "fde0ff4d329880875c4577589bcdd4e2"
+}
+
+failure  card
+array(2) {
+  ["ERRORSTRING"]=>
+  string(46) "wrong card number (must be at least 10 digits)"
+  ["STATUS"]=>
+  bool(false)
+}
+
+failure parse
+array(2) {
+  ["ERRORSTRING"]=>
+  string(121) "cvc-length-valid: Value '' with length = '0' is not facet-valid with respect to length '3' for type '#AnonType_CURRENCY'."
+  ["STATUS"]=>
+  bool(false)
+}
+
+failure ach
+array(6) {
+  ["UNIQUEREF"]=>
+  string(10) "CTNWY5LCFN"
+  ["RESPONSECODE"]=>
+  string(1) "D"
+  ["RESPONSETEXT"]=>
+  string(48) "The AccountNumber (xxxxxx534s) is not a valid..."
+  ["APPROVALCODE"]=>
+  string(17) "Error_Unspecified"
+  ["DATETIME"]=>
+  array(0) {
+  }
+  ["HASH"]=>
+  string(32) "1b96886cf08452b3123f467d2ca055bb"
+}

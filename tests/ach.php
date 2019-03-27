@@ -23,17 +23,16 @@ $paymentParams['ACCOUNT_NAME'] = "John Doe";
 $paymentParams['DL_STATE'] = "NY";
 $paymentParams['DL_NUMBER'] = "4353445";
 
-// $paymentParams['ADDRESS'] = \Nuvei\Nuvei::buildAddressObject(
-// 	"1st Street",
-// 	null,
-// 	"US",
-// 	null,
-// 	"New York City",
-// 	"12345"
-// );
+$paymentParams['ADDRESS'] = \Nuvei\Nuvei::buildAddressObject(
+	"1st Street",
+	null,
+	"US",
+	null,
+	"New York City",
+	"12345"
+);
 
 
 
 $response = $nuvei->sendPayment($paymentParams);
-// die();
 echo 'ach <pre>' , var_dump($response) , '</pre>';

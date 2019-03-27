@@ -32,6 +32,20 @@ class Nuvei_Response{
 		}
 	}
 
+	public function isSuccess(){
+		return $success;
+	}
+
+	public function setError($error_message){
+		$this->error_message = $error_message;
+	}
+
+	public static function FAILURE($error_message,$type = 'card'){
+		$failure = new self(null,'card');
+		$failure->setError($error_message);
+		return $failure;
+	}
+
 	private function parseAchResponse($re){
 		if(isset($re['RESPONSECODE'])){
 			if(isset($re['RESPONSECODE']) && $re['RESPONSECODE'] === "E"){
