@@ -137,12 +137,8 @@ class Nuvei {
 		$this->Nuvei_Post = new Nuvei_Post($this->_paymentURL, $this->_paymentParams,$this->Nuvei_Config);
 		$out = $this->Nuvei_Post->sendPayment();
 
-		if($out['STATUS'] == false && isset($out['ERRORSTRING']) && !strpos($out['ERRORSTRING'],'#')===false){
-			$error = $out['ERRORSTRING'];
-
-			if(!strpos($error,'#AnonType_CARDNUMBER')===false){
-				$out['ERRORSTRING'] = 'wrong card number (must be at least 10 digits)';
-			}
+		if($out['STATUS'] == false && isset($out['ERRORSTRING'])){
+			$out['ERRORSTRING'] = $this->mapError($out['ERRORSTRING']);
 		}
 
 		if($this->saveToDatabase){
@@ -152,6 +148,31 @@ class Nuvei {
 		}
 
 		return new Nuvei_Response($out,$params["PAYMENTTYPE"]);
+	}
+
+	protected function mapError($error){
+		if(!strpos($error,'#AnonType_CARDNUMBER')===false){
+			return 'wrong card number (must be at least 10 digits)';
+		}
+		if(!strpos($error,'#AnonType_CARDEXPIRY')===false){
+			return 'Invalid Expiration Date';
+		}
+		if(!strpos($error,"vc-enumeration-valid")===false){
+			return  'please specify CHECKING or SAVINGS';
+		}
+		if(!strpos($error,"#AnonType_ROUTING_NUMBER")===false){
+			return  'Invalid Rouing Number (please check and try again)';
+		}
+		if(!strpos($error,"#AnonType_DL_NUMBER")===false){
+			return  'Invalid Drivers Licence Number (This field is for your protection. Only if your drivers Licence is unavailable you can skip this feild)';
+		}
+		if(!strpos($error,"#AnonType_DL_STATE")===false){
+			return  'Invalid Drivers Licence State (This field is for your protection. Only if your drivers Licence is unavailable you can skip this feild)';
+		}
+		if(!strpos($error,"#AnonType_CURRENCY")===false){
+			return  'Invalid Currency';
+		}
+		return $error;
 	}
 
 	public function setMode($mode = 'test'){

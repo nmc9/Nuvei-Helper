@@ -21,64 +21,92 @@ class Nuvei_Response{
 	public function __construct($re,$paymenttype){
 		$this->response = $re;
 		try{
-
+			if($paymenttype == 'force'){
+				throw new \Exception("Error Processing Request", 1);
+			}
 			if($paymenttype == 'check' || $paymenttype == 'ach'){
 				$this->parseAchResponse($re);
 			}else{
 				$this->parseCardResponse($re);
 			}
-		}catch(Exception $e){
+		}catch(\Exception $e){
 			$this->setResponseType(self::EXCEPTION);
 		}
+	}
+
+	public function get_data(){
+		if($this->responseType == self::EXCEPTION){
+			return null;
+		}
+		return $this->response;
+	}
+
+	public function get_message(){
+		return $this->error_message;
 	}
 
 	public function isSuccess(){
 		return $success;
 	}
 
-	public function setError($error_message){
+	private function setError($error_message){
 		$this->error_message = $error_message;
 	}
 
-	public static function FAILURE($error_message,$type = 'card'){
-		$failure = new self(null,'card');
+	public static function FAILURE($error_message){
+		$failure = new self([],'force');
 		$failure->setError($error_message);
 		return $failure;
 	}
 
 	private function parseAchResponse($re){
+		$error_message = isset($re['RESPONSETEXT']) ? $re["RESPONSETEXT"] : false;
 		if(isset($re['RESPONSECODE'])){
 			if(isset($re['RESPONSECODE']) && $re['RESPONSECODE'] === "E"){
 				$this->setResponseType(self::ACH_SUCCESS);
 			}else{
-				$this->error_message = $re['RESPONSETEXT'];
-				$this->setResponseType(self::ACH_ERROR);
+				$this->setResponseType(self::ACH_ERROR,$error_message);
 			}
 		}else{
-			$this->parseErrorResponse($re);
+			$this->parseErrorResponse($re,$error_message);
 		}
-	}
-
-	private function parseErrorResponse($re){
-		if(!isset($re['ERRORSTRING'])){
-			throw new Exception("Error Processing Request", 1);
-		}
-		$this->error_message = $re['ERRORSTRING'];
-		$this->setResponseType(self::ERROR);
 	}
 
 	private function parseCardResponse($re){
-		if(isset($re['RESPONSECODE']) && $re['RESPONSECODE'] === "A"){
-			$this->setResponseType(self::CARD_SUCCESS);
+		$error_message = isset($re['RESPONSETEXT']) ? $re["RESPONSETEXT"] : false;
+		if(isset($re['RESPONSECODE'])){
+			switch ($re['RESPONSECODE']) {
+				case "A":
+				$this->setResponseType(self::CARD_SUCCESS);
+				break;
+
+				case "D":
+				case "E":
+				case "R":
+				$this->setResponseType(self::CARD_ERROR,$error_message);
+				break;
+
+				default:
+				$this->parseErrorResponse($re,$error_message);
+				break;
+			}
 		}else{
-			$this->parseErrorResponse($re);
+			$this->parseErrorResponse($re,$error_message);
 		}
 	}
+	private function parseErrorResponse($re,$fallbackError = false){
+		if(!isset($re['ERRORSTRING'])){
+			throw new \Exception("Error Processing Request", 1);
+		}
+		$this->setResponseType(self::ERROR,$fallbackError ?: $re['ERRORSTRING']);
+	}
 
-	private function setResponseType($type){
+	private function setResponseType($type,$error_message = false){
 		$this->responseType = $type;
 		if($type == 1 || $type == 2){
 			$this->success = true;
+		}else{
+			$this->error_message = $error_message;
 		}
 	}
 
