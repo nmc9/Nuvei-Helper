@@ -136,6 +136,7 @@ class Nuvei {
 
 		$this->Nuvei_Post = new Nuvei_Post($this->_paymentURL, $this->_paymentParams,$this->Nuvei_Config);
 		$out = $this->Nuvei_Post->sendPayment();
+		$card_type = $this->Nuvei_Post->get_carD_type();
 
 		if($out['STATUS'] == false && isset($out['ERRORSTRING'])){
 			if($mapErrorFunction == null){
@@ -151,7 +152,7 @@ class Nuvei {
 			$out['TXNID'] = $this->Nuvei_Db->_txnId;
 		}
 
-		return new Nuvei_Response($out,$params["PAYMENTTYPE"]);
+		return new Nuvei_Response($out,$params["PAYMENTTYPE"],$card_type);
 	}
 
 	protected function mapErrorDefault($error){

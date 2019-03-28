@@ -7,7 +7,7 @@ require('setupTests.php');
 //* The amount as a two digit decimal */
 $paymentParams['PAYMENTTYPE'] = "card";
 
-$paymentParams['AMOUNT'] = 1211.05;
+$paymentParams['AMOUNT'] = 1211.02;
 $paymentParams['CURRENCY'] = "USD";
 $paymentParams['CARDNUMBER'] = "4111111111111111";
 $paymentParams['CARDHOLDERNAME'] = "John!! Doe";

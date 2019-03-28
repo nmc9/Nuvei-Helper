@@ -13,6 +13,8 @@ Class Nuvei_Post{
 	var $_normalizedPaymentReponse ;
 	var $Nuvei_Config ;
 
+	protected $card = false;
+
 	public function __construct($paymentURL,$paymentParams,$Nuvei_Config){
 		$this->_paymentURL = $paymentURL;
 		$this->_paymentParams = $paymentParams;
@@ -35,6 +37,8 @@ Class Nuvei_Post{
 		$this->_normalizedPaymentParams = $format->getNormalizedPaymentParams();
 		$this->_xml = $format->getXML();
 
+		//Save The card
+		$this->card = $format->get_card_type();
 
 		//send
 		$request = $curl->curlXmlRequest($this->_paymentURL,$this->_xml);
@@ -46,6 +50,10 @@ Class Nuvei_Post{
 		$this->_normalizedPaymentReponse = $normalizedPaymentReponse;
 		return $normalizedPaymentReponse;
 
+	}
+
+	public function get_card_type(){
+		return $this->card;
 	}
 
 	public function getXML(){

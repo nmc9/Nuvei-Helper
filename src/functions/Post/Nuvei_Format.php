@@ -14,8 +14,13 @@ class Nuvei_Format{
 	protected $_postDateTime;
 	protected $_xml;
 	// protected $Nuvei_Config;
+	protected $card_type;
 
 	protected $paymenttype;
+
+	public function get_card_type(){
+		return $this->card_type;
+	}
 
 	public function __construct($Nuvei_Config,$paymentParams,$terminal,$postHash,$postDateTime){
 		$this->Nuvei_Config = $Nuvei_Config;
@@ -155,6 +160,7 @@ class Nuvei_Format{
 		$out['DATETIME'] = $this->_postDateTime;
 		$out['CARDNUMBER'] = $this->cleanCardNumber($params['CARDNUMBER']);
 		$out['CARDTYPE'] = $this->getCardType($params['CARDNUMBER']);
+		$this->card_type = $out['CARDTYPE'];
 		$out['CARDEXPIRY'] = $this->cleanExpiryDate($params['MONTH'],$params['YEAR']);
 		$out['CARDHOLDERNAME'] = $params['CARDHOLDERNAME'];
 

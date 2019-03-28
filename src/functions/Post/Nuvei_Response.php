@@ -7,8 +7,10 @@ class Nuvei_Response{
 	protected $success = false;
 	protected $responseType;
 	protected $response = [];
+	protected $code;
 
 	protected $error_message = false;
+	protected $card = false;
 
 	const ACH_SUCCESS = 2;
 	const ACH_ERROR = 4;
@@ -18,8 +20,9 @@ class Nuvei_Response{
 	const EXCEPTION = -1;
 
 
-	public function __construct($re,$paymenttype){
+	public function __construct($re,$paymenttype,$card = false){
 		$this->response = $re;
+		$this->card = $card != null ? $card : false;
 		try{
 			if($paymenttype == 'force'){
 				throw new \Exception("Error Processing Request", 1);
@@ -34,11 +37,19 @@ class Nuvei_Response{
 		}
 	}
 
+	public function get_code(){
+		return $this->code;
+	}
+
 	public function get_data(){
 		if($this->responseType == self::EXCEPTION){
 			return [];
 		}
 		return $this->response;
+	}
+
+	public function get_card(){
+		return $this->card;
 	}
 
 	public function get_message(){
@@ -109,9 +120,9 @@ class Nuvei_Response{
 		$error_message = isset($re['RESPONSETEXT']) ? $re["RESPONSETEXT"] : false;
 		if(isset($re['RESPONSECODE'])){
 			if(isset($re['RESPONSECODE']) && $re['RESPONSECODE'] === "E"){
-				$this->setResponseType(self::ACH_SUCCESS);
+				$this->setResponseType(self::ACH_SUCCESS,false,$re['RESPONSECODE']);
 			}else{
-				$this->setResponseType(self::ACH_ERROR,$error_message);
+				$this->setResponseType(self::ACH_ERROR,$error_message,$re['RESPONSECODE']);
 			}
 		}else{
 			$this->parseErrorResponse($re,$error_message);
@@ -123,13 +134,13 @@ class Nuvei_Response{
 		if(isset($re['RESPONSECODE'])){
 			switch ($re['RESPONSECODE']) {
 				case "A":
-				$this->setResponseType(self::CARD_SUCCESS);
+				$this->setResponseType(self::CARD_SUCCESS,false,$re['RESPONSECODE']);
 				break;
 
 				case "D":
 				case "E":
 				case "R":
-				$this->setResponseType(self::CARD_ERROR,$error_message);
+				$this->setResponseType(self::CARD_ERROR,$error_message,$re['RESPONSECODE']);
 				break;
 
 				default:
@@ -147,8 +158,9 @@ class Nuvei_Response{
 		$this->setResponseType(self::ERROR,$fallbackError ?: $re['ERRORSTRING']);
 	}
 
-	private function setResponseType($type,$error_message = false){
+	private function setResponseType($type,$error_message = false,$code = 999){
 		$this->responseType = $type;
+		$this->code = $code;
 		if($type == 1 || $type == 2){
 			$this->success = true;
 		}else{
