@@ -16,7 +16,7 @@ $paymentParams['CURRENCY'] = "USD";
 
 
 $paymentParams['ACCOUNT_TYPE'] = "SAVINGS";
-$paymentParams['ACCOUNT_NUMBER'] = "011401534";
+$paymentParams['ACCOUNT_NUMBER'] = "011401534s";
 $paymentParams['ROUTING_NUMBER'] = "011401533";
 $paymentParams['ACCOUNT_NAME'] = "John Doe";
 // $paymentParams['CHECK_NUMBER'] = "1236";
@@ -36,3 +36,4 @@ $paymentParams['ADDRESS'] = \Nuvei\Nuvei::buildAddressObject(
 
 $response = $nuvei->sendPayment($paymentParams);
 echo 'ach <pre>' , var_dump($response) , '</pre>';
+echo 'ach <pre>' , var_dump($response->get_datetime()) , '</pre>';

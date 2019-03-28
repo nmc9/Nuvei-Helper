@@ -6,7 +6,7 @@ class Nuvei_Response{
 
 	protected $success = false;
 	protected $responseType;
-	protected $response;
+	protected $response = [];
 
 	protected $error_message = false;
 
@@ -36,7 +36,7 @@ class Nuvei_Response{
 
 	public function get_data(){
 		if($this->responseType == self::EXCEPTION){
-			return null;
+			return [];
 		}
 		return $this->response;
 	}
@@ -49,9 +49,55 @@ class Nuvei_Response{
 		return $success;
 	}
 
+	private function get_value($key){
+		if($this->responseType > 0  && isset($this->response[$key])){
+			return $this->response[$key];
+		}
+		return null;
+	}
+
+	public function get_unique_id(){
+		return $this->get_value('UNIQUEREF');
+	}
+
+	public function get_response_code(){
+		return $this->get_value('RESPONSECODE');
+	}
+
+	public function get_response_text(){
+		return $this->get_value('RESPONSETEXT');
+	}
+
+	public function get_approval_code(){
+		return $this->get_value('APPROVALCODE');
+	}
+
+	public function get_datetime(){
+		return $this->get_value('DATETIME');
+	}
+
+	public function get_hash(){
+		return $this->get_value('HASH');
+	}
+
+	public function get_cvv_response(){
+		if($this->responseType == self::CARD_SUCCESS){
+			return $this->get_value('CVVRESPONSE');
+		}
+	}
+
+	public function get_avs_response(){
+		if($this->responseType == self::CARD_SUCCESS){
+			return $this->get_value('AVSRESPONSE');
+		}
+	}
+
+
 	private function setError($error_message){
 		$this->error_message = $error_message;
 	}
+
+
 
 	public static function FAILURE($error_message){
 		$failure = new self([],'force');
