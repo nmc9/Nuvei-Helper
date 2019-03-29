@@ -57,7 +57,7 @@ class Nuvei_Response{
 	}
 
 	public function isSuccess(){
-		return $success;
+		return $this->success;
 	}
 
 	private function get_value($key){
