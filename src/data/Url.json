@@ -1,4 +1,4 @@
 {
   "test":"https://testpayments.globalone.me/merchant/xmlpayment",
-  "live":"https://testpayments.globalone.me/merchant/xmlpayment"
+  "live":"https://payments.globalone.me/merchant/xmlpayment"
 }
