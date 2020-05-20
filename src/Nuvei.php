@@ -120,19 +120,23 @@ class Nuvei {
 		return (new Nuvei($config,$mode))->sendPayment($params);
 	}
 
-	private function alerterParams($params){
+	private function alerterParams($params,$disregardAchFee){
 		if(!array_key_exists("ORDERID", $params)){
 			$params["ORDERID"] = uniqid() . time();
 		}
 		if(!array_key_exists("PAYMENTTYPE", $params)){
 			$params["PAYMENTTYPE"] = "card";
 		}
+
+		//Only Disregard Ach Fee
+		if($params["PAYMENTTYPE"] == "ach" || $params["PAYMENTTYPE"] == "check"){
+			$params["AMOUNT"] = $this->subtractFee($params["AMOUNT"],$disregardAchFee);
+		}
 		return $params;
 	}
 
-	public function sendPayment($params,$mapErrorFunction = null){
-
-		$this->_paymentParams = $this->alerterParams($params);
+	public function sendPayment($params,$disregardAchFee = 3.00,$mapErrorFunction = null){
+		$this->_paymentParams = $this->alerterParams($params,$disregardAchFee);
 
 		$this->Nuvei_Post = new Nuvei_Post($this->_paymentURL, $this->_paymentParams,$this->Nuvei_Config);
 		$out = $this->Nuvei_Post->sendPayment();
@@ -153,6 +157,15 @@ class Nuvei {
 		}
 
 		return new Nuvei_Response($out,$params["PAYMENTTYPE"],$card_type);
+	}
+
+	private function subtractFee($amount,$fee){
+		if($fee == null || $fee < 0){
+			return $amount;
+		}
+		$amount = (($amount * 100) - ($fee*100))/100;
+
+		return $amount;
 	}
 
 	protected function mapErrorDefault($error){

@@ -9,7 +9,7 @@ require('setupAchTests.php');
 $paymentParams['PAYMENTTYPE'] = "check";
 
 //* The amount as a two digit decimal */
-$paymentParams['AMOUNT'] = 13.12;
+$paymentParams['AMOUNT'] = 13.10;
 $paymentParams['CURRENCY'] = "USD";
 // $paymentParams['CARDNUMBER'] = "4111111111111111";
 // $paymentParams['CARDHOLDERNAME'] = "Nick Caruso";
@@ -34,6 +34,6 @@ $paymentParams['ADDRESS'] = \Nuvei\Nuvei::buildAddressObject(
 
 
 
-$response = $nuvei->sendPayment($paymentParams,2);
+$response = $nuvei->sendPayment($paymentParams,null);
 var_dump($nuvei->getPaymentParams());
 echo 'ach <pre>' , var_dump($response) , '</pre>';
