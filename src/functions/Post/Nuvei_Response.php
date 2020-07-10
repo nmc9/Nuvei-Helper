@@ -60,7 +60,7 @@ class Nuvei_Response{
 		return $this->success;
 	}
 
-	private function get_value($key){
+	public function get_value($key){
 		if($this->responseType > 0  && isset($this->response[$key])){
 			return $this->response[$key];
 		}
@@ -73,6 +73,10 @@ class Nuvei_Response{
 
 	public function get_response_code(){
 		return $this->get_value('RESPONSECODE');
+	}
+
+	public function get_bank_response_code(){
+		return $this->get_value('BANKRESPONSECODE');
 	}
 
 	public function get_response_text(){
@@ -88,6 +92,10 @@ class Nuvei_Response{
 	}
 
 	public function get_hash(){
+		return $this->get_value('HASH');
+	}
+
+	public function get_response_status(){
 		return $this->get_value('HASH');
 	}
 
